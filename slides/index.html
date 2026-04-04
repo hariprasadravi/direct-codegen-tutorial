@@ -92,6 +92,7 @@
     background: #0f172a; border: 1px solid #1e293b; border-radius: 8px;
     padding: 20px 24px; font-family: 'JetBrains Mono', 'Fira Code', monospace;
     font-size: 0.95em; line-height: 1.6; margin: 15px 0; overflow-x: auto;
+    white-space: pre; display: block;
   }
   .code-label {
     display: inline-block; padding: 2px 10px; border-radius: 4px 4px 0 0;
@@ -181,11 +182,9 @@
     <div class="two-col">
       <div>
         <h3>PyTorch ExportedProgram</h3>
-        <div class="code-block">
-          <span class="cm">% MATLAB</span><br>
-          net = <span class="fn">loadPyTorchExportedProgram</span>(<span class="str">"model.pt2"</span>);<br>
-          out = <span class="fn">net</span>(input);
-        </div>
+        <div class="code-block"><span class="cm">% MATLAB</span>
+net = <span class="fn">loadPyTorchExportedProgram</span>(<span class="str">"model.pt2"</span>);
+out = <span class="fn">net</span>(input);</div>
         <ul class="bullets">
           <li>Full computation graph + weights</li>
           <li>Exported via <code>torch.export</code></li>
@@ -194,11 +193,9 @@
       </div>
       <div>
         <h3>LiteRT (TensorFlow Lite)</h3>
-        <div class="code-block">
-          <span class="cm">% MATLAB</span><br>
-          model = <span class="fn">loadLiteRTModel</span>(<span class="str">"model.tflite"</span>);<br>
-          out = <span class="fn">invoke</span>(model, input);
-        </div>
+        <div class="code-block"><span class="cm">% MATLAB</span>
+model = <span class="fn">loadLiteRTModel</span>(<span class="str">"model.tflite"</span>);
+out = <span class="fn">invoke</span>(model, input);</div>
         <ul class="bullets">
           <li>Optimized for edge &amp; mobile</li>
           <li>Supports int8/float16 quantization</li>
@@ -267,22 +264,18 @@
   <div class="content-box">
     <h2>The Export Pattern (3 Lines)</h2>
     <span class="code-label python">Python</span>
-    <div class="code-block">
-<span class="cm"># 1. Load or define your model</span>
+    <div class="code-block"><span class="cm"># 1. Load or define your model</span>
 model = timm.create_model(<span class="str">'repvit_m1_0'</span>, pretrained=<span class="kw">True</span>)
 
 <span class="cm"># 2. Export the computation graph</span>
 ep = torch.export.export(model, (sample_input,))
 
 <span class="cm"># 3. Save to .pt2</span>
-torch.export.save(ep, <span class="str">'repvit.pt2'</span>)
-    </div>
+torch.export.save(ep, <span class="str">'repvit.pt2'</span>)</div>
     <span class="code-label matlab">MATLAB</span>
-    <div class="code-block">
-<span class="cm">% Load and use — that's it</span>
+    <div class="code-block"><span class="cm">% Load and use — that's it</span>
 net = loadPyTorchExportedProgram(<span class="str">"repvit.pt2"</span>);
-scores = net(input);
-    </div>
+scores = net(input);</div>
   </div>
   <div class="slide-num">7</div>
 </div>
@@ -294,21 +287,17 @@ scores = net(input);
     <div class="two-col">
       <div>
         <span class="code-label python">Python — Model Definition</span>
-        <div class="code-block">
-<span class="kw">def</span> <span class="fn">forward</span>(self, x, h_0, c_0):
+        <div class="code-block"><span class="kw">def</span> <span class="fn">forward</span>(self, x, h_0, c_0):
     out, (h_n, c_n) = self.lstm(x, (h_0, c_0))
     pred = self.fc(out)
-    <span class="kw">return</span> pred, h_n, c_n
-        </div>
+    <span class="kw">return</span> pred, h_n, c_n</div>
       </div>
       <div>
         <span class="code-label matlab">MATLAB — Streaming Inference</span>
-        <div class="code-block">
-[pred, h_n, c_n] = net(x, h_0, c_0);
+        <div class="code-block">[pred, h_n, c_n] = net(x, h_0, c_0);
 
 <span class="cm">% Next timestep: feed state back</span>
-[pred, h_n, c_n] = net(x_next, h_n, c_n);
-        </div>
+[pred, h_n, c_n] = net(x_next, h_n, c_n);</div>
       </div>
     </div>
     <div class="takeaway">
@@ -369,8 +358,7 @@ scores = net(input);
   <div class="content-box">
     <h2>Bonus: Verify from MATLAB Using Python</h2>
     <span class="code-label matlab">MATLAB</span>
-    <div class="code-block">
-<span class="cm">% Load the same .pt2 in Python — directly from MATLAB</span>
+    <div class="code-block"><span class="cm">% Load the same .pt2 in Python — directly from MATLAB</span>
 torch = py.importlib.import_module(<span class="str">"torch"</span>);
 ep = torch.export.load(<span class="str">"repvit.pt2"</span>);
 model = ep.module();
@@ -381,8 +369,7 @@ t_in = torch.from_numpy(np.array(input, dtype=<span class="str">"float32"</span>
 py_out = single(model(t_in).detach().numpy());
 
 <span class="cm">% Compare</span>
-max_err = max(abs(ml_out - py_out), [], <span class="str">'all'</span>);
-    </div>
+max_err = max(abs(ml_out - py_out), [], <span class="str">'all'</span>);</div>
     <div class="takeaway">
       MATLAB's Python interface lets you call <strong>any Python package</strong> for validation &mdash; no separate scripts needed.
     </div>
