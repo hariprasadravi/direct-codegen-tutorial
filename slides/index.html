@@ -280,7 +280,45 @@ scores = net(input);</div>
   <div class="slide-num">7</div>
 </div>
 
-<!-- Slide 8: Stateful Pattern -->
+<!-- Slide 8: LiteRT Export Pattern -->
+<div class="slide slide-content">
+  <div class="content-box">
+    <h2>Exporting to LiteRT (.tflite)</h2>
+    <div class="two-col">
+      <div>
+        <h3>Option A: <code>ai_edge_torch</code></h3>
+        <p style="color:#94a3b8; margin-bottom:10px;">Convert any PyTorch model directly to TFLite</p>
+        <span class="code-label python">Python</span>
+        <div class="code-block"><span class="kw">import</span> ai_edge_torch
+
+model = ...  <span class="cm"># any PyTorch nn.Module</span>
+sample = torch.randn(<span class="num">1</span>, <span class="num">3</span>, <span class="num">224</span>, <span class="num">224</span>)
+
+edge_model = ai_edge_torch.<span class="fn">convert</span>(
+    model, (sample,)
+)
+edge_model.<span class="fn">export</span>(<span class="str">"model.tflite"</span>)</div>
+      </div>
+      <div>
+        <h3>Option B: Framework Export</h3>
+        <p style="color:#94a3b8; margin-bottom:10px;">Some frameworks have built-in TFLite export</p>
+        <span class="code-label python">Python (Ultralytics)</span>
+        <div class="code-block"><span class="kw">from</span> ultralytics <span class="kw">import</span> YOLO
+
+model = YOLO(<span class="str">'yolo11s-seg.pt'</span>)
+model.<span class="fn">export</span>(format=<span class="str">'tflite'</span>)</div>
+        <p style="color:#94a3b8; margin-top:15px; font-size:0.9em;">Internally: PyTorch &rarr; ONNX &rarr; TF &rarr; TFLite</p>
+      </div>
+    </div>
+    <span class="code-label matlab">MATLAB</span>
+    <div class="code-block"><span class="cm">% Same MATLAB API regardless of how the model was exported</span>
+model = <span class="fn">loadLiteRTModel</span>(<span class="str">"model.tflite"</span>);
+out = <span class="fn">invoke</span>(model, input);</div>
+  </div>
+  <div class="slide-num">8</div>
+</div>
+
+<!-- Slide 9: Stateful Pattern  -->
 <div class="slide slide-content">
   <div class="content-box">
     <h2>Stateful Models: Explicit State I/O</h2>
@@ -304,17 +342,17 @@ scores = net(input);</div>
       The caller manages the hidden state &mdash; essential for <strong>Simulink</strong> and <strong>streaming inference</strong>.
     </div>
   </div>
-  <div class="slide-num">8</div>
-</div>
-
-<!-- Slide 9: Part 2 Header -->
-<div class="slide slide-section">
-  <h2>Part 2: MATLAB Live Demo</h2>
-  <div class="section-sub">Load, verify, and generate code</div>
   <div class="slide-num">9</div>
 </div>
 
-<!-- Slide 10: MATLAB Workflow -->
+<!-- Slide 10: Part 2 Header -->
+<div class="slide slide-section">
+  <h2>Part 2: MATLAB Live Demo</h2>
+  <div class="section-sub">Load, verify, and generate code</div>
+  <div class="slide-num">10</div>
+</div>
+
+<!-- Slide 11: MATLAB Workflow -->
 <div class="slide slide-content">
   <div class="content-box">
     <h2>MATLAB Demo Workflow</h2>
@@ -350,10 +388,10 @@ scores = net(input);</div>
       <li><strong>Numeric verification</strong> &mdash; Call Python's <code>torch.export.load</code> from MATLAB to compare outputs</li>
     </ul>
   </div>
-  <div class="slide-num">10</div>
+  <div class="slide-num">11</div>
 </div>
 
-<!-- Slide 11: Verify with Python -->
+<!-- Slide 12: Verify with Python -->
 <div class="slide slide-content">
   <div class="content-box">
     <h2>Bonus: Verify from MATLAB Using Python</h2>
@@ -374,10 +412,10 @@ max_err = max(abs(ml_out - py_out), [], <span class="str">'all'</span>);</div>
       MATLAB's Python interface lets you call <strong>any Python package</strong> for validation &mdash; no separate scripts needed.
     </div>
   </div>
-  <div class="slide-num">11</div>
+  <div class="slide-num">12</div>
 </div>
 
-<!-- Slide 12: Summary -->
+<!-- Slide 13: Summary -->
 <div class="slide slide-content">
   <div class="content-box">
     <h2>Key Takeaways</h2>
@@ -389,7 +427,7 @@ max_err = max(abs(ml_out - py_out), [], <span class="str">'all'</span>);</div>
       <li><strong>Python interop</strong> &mdash; call <code>py.torch</code> from MATLAB for numeric verification</li>
     </ul>
   </div>
-  <div class="slide-num">12</div>
+  <div class="slide-num">13</div>
 </div>
 
 <div class="nav-hint">Scroll to navigate slides</div>
