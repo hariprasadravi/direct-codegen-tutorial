@@ -382,35 +382,27 @@ out = <span class="fn">invoke</span>(model, input);</div>
 <div class="slide slide-content">
   <div class="content-box">
     <h2>Simulink Blocks for Direct Inference</h2>
-    <div class="two-col">
-      <div>
-        <div class="card" style="text-align:center;">
-          <img src="images/pytorch_block.png" alt="PyTorch ExportedProgram Simulink Block" style="max-width:280px; margin-bottom:12px; border-radius:8px;">
-          <h3>PyTorch ExportedProgram Block</h3>
-          <p style="margin-top:10px;">Loads <code>.pt2</code> models directly in Simulink</p>
-          <ul class="bullets" style="margin-top:12px; text-align:left;">
-            <li>Multiple inputs &amp; outputs</li>
-            <li>Variable-sized dimensions</li>
-            <li>Generates C/C++ and CUDA code</li>
-          </ul>
-        </div>
+    <div style="display: flex; justify-content: center; gap: 60px; margin-bottom: 30px;">
+      <div class="card" style="text-align:center; flex: 0 0 auto;">
+        <img src="images/pytorch_block.png" alt="PyTorch ExportedProgram Simulink Block" style="max-width:260px; margin-bottom:8px; border-radius:8px;">
+        <h3>PyTorch ExportedProgram Block</h3>
+        <p style="margin-top:6px; color:#94a3b8;">Loads <code>.pt2</code> models</p>
       </div>
-      <div>
-        <div class="card" style="text-align:center;">
-          <img src="images/litert_block.png" alt="LiteRT Simulink Block" style="max-width:280px; margin-bottom:12px; border-radius:8px;">
-          <h3>LiteRT Block</h3>
-          <p style="margin-top:10px;">Loads <code>.tflite</code> models directly in Simulink</p>
-          <ul class="bullets" style="margin-top:12px; text-align:left;">
-            <li>Input/output dimension permutation</li>
-            <li>State feedback loops with Delay blocks</li>
-            <li>Generates C/C++ and GPU code</li>
-          </ul>
-        </div>
+      <div class="card" style="text-align:center; flex: 0 0 auto;">
+        <img src="images/litert_block.png" alt="LiteRT Simulink Block" style="max-width:260px; margin-bottom:8px; border-radius:8px;">
+        <h3>LiteRT Block</h3>
+        <p style="margin-top:6px; color:#94a3b8;">Loads <code>.tflite</code> models</p>
       </div>
     </div>
+    <ul class="bullets">
+      <li>Multiple inputs &amp; outputs with variable-sized dimensions</li>
+      <li>Input/output dimension permutation</li>
+      <li>State feedback loops with Delay blocks</li>
+      <li>Generates C/C++, CUDA, and GPU code</li>
+      <li>Co-execution &mdash; run alongside a Python reference for numeric validation</li>
+    </ul>
     <div class="takeaway">
-      Both blocks require the <strong>MATLAB Coder Support Package for PyTorch and LiteRT Models</strong>.<br>
-      Supports <strong>co-execution</strong> &mdash; run the block alongside a Python reference for numeric validation.
+      Both blocks require the <strong>MATLAB Coder Support Package for PyTorch and LiteRT Models</strong>.
     </div>
   </div>
   <div class="slide-num">10</div>
