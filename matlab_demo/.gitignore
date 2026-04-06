@@ -1,0 +1,11 @@
+# Generated MEX binaries
+*.mexa64
+*.mexmaci64
+*.mexw64
+
+# Codegen output
+codegen/
+
+# Model files (too large for git, downloaded from Colab)
+*.pt2
+*.tflite
