@@ -410,59 +410,105 @@ out = <span class="fn">invoke</span>(model, input);</div>
     </div>
     <div class="takeaway">
       Both blocks require the <strong>MATLAB Coder Support Package for PyTorch and LiteRT Models</strong>.<br>
-      Drag, configure, and generate &mdash; no MATLAB Function blocks needed.
+      Supports <strong>co-execution</strong> &mdash; run the block alongside a Python reference for numeric validation.
     </div>
   </div>
   <div class="slide-num">10</div>
 </div>
 
-<!-- Slide 11: Part 2 Header -->
-<div class="slide slide-section">
-  <h2>Part 2: MATLAB Live Demo</h2>
-  <div class="section-sub">Load, verify, and generate code</div>
+<!-- Slide 11: Simulink Streaming Demo -->
+<div class="slide slide-content">
+  <div class="content-box">
+    <h2>Simulink Demo: Streaming LSTM</h2>
+    <div class="flow">
+      <div class="flow-step">
+        <div class="step-num">INPUT</div>
+        <div class="step-title">Sensor Windows</div>
+        <div class="step-detail">[1 &times; 75 &times; 3] per step</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step" style="border-color: #4fc3f7;">
+        <div class="step-num">PyTorch Block</div>
+        <div class="step-title">stateful_lstm.pt2</div>
+        <div class="step-detail">pred, h_n, c_n</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="step-num">POST-PROCESS</div>
+        <div class="step-title">argmax &rarr; Activity</div>
+        <div class="step-detail">Sitting, Walking, ...</div>
+      </div>
+    </div>
+    <div class="two-col" style="margin-top: 30px;">
+      <div>
+        <h3>State Feedback</h3>
+        <ul class="bullets">
+          <li>Hidden state <code>h_n</code> &amp; cell state <code>c_n</code> fed back via <strong>Unit Delay</strong> blocks</li>
+          <li>LSTM maintains context across windows</li>
+          <li>Activity predictions change as input patterns shift</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Co-Execution</h3>
+        <ul class="bullets">
+          <li>Two parallel paths: <strong>direct inference</strong> vs <strong>Python reference</strong></li>
+          <li>Compare outputs side-by-side in real time</li>
+          <li>Validates numeric equivalence during simulation</li>
+        </ul>
+      </div>
+    </div>
+  </div>
   <div class="slide-num">11</div>
 </div>
 
-<!-- Slide 12: MATLAB Workflow -->
+<!-- Slide 12: Part 2 Header -->
+<div class="slide slide-section">
+  <h2>Part 2: MATLAB Live Demo</h2>
+  <div class="section-sub">Load, verify, and generate code</div>
+  <div class="slide-num">12</div>
+</div>
+
+<!-- Slide 13: MATLAB Workflow -->
 <div class="slide slide-content">
   <div class="content-box">
     <h2>MATLAB Demo Workflow</h2>
     <div class="flow">
       <div class="flow-step">
         <div class="step-num">1</div>
-        <div class="step-title">Load Model</div>
-        <div class="step-detail">loadPyTorchExportedProgram<br>loadLiteRTModel</div>
+        <div class="step-title">Open Project</div>
+        <div class="step-detail">Auto-setup via<br>projectStartup.m</div>
       </div>
       <div class="flow-arrow">&rarr;</div>
       <div class="flow-step">
         <div class="step-num">2</div>
-        <div class="step-title">Run Inference</div>
-        <div class="step-detail">net(input)</div>
+        <div class="step-title">Load &amp; Infer</div>
+        <div class="step-detail">MATLAB scripts</div>
       </div>
       <div class="flow-arrow">&rarr;</div>
       <div class="flow-step">
         <div class="step-num">3</div>
-        <div class="step-title">Verify vs Python</div>
-        <div class="step-detail">py.torch interface</div>
+        <div class="step-title">Generate Code</div>
+        <div class="step-detail">codegen &rarr; MEX</div>
       </div>
       <div class="flow-arrow">&rarr;</div>
       <div class="flow-step">
         <div class="step-num">4</div>
-        <div class="step-title">Generate MEX</div>
-        <div class="step-detail">codegen</div>
+        <div class="step-title">Simulink</div>
+        <div class="step-detail">Streaming + co-exec</div>
       </div>
     </div>
     <ul class="bullets">
+      <li><strong>MATLAB Project</strong> &mdash; One-click setup: support package, Python env, Simulink inputs</li>
       <li><strong>RepViT</strong> &mdash; Classify an image, show top-5 predictions, generate MEX</li>
       <li><strong>YOLOv11</strong> &mdash; Detect objects, draw bounding boxes &amp; masks</li>
-      <li><strong>Stateful LSTM</strong> &mdash; Activity recognition with explicit state passing</li>
+      <li><strong>Stateful LSTM</strong> &mdash; Activity recognition in MATLAB &amp; streaming Simulink demo</li>
       <li><strong>Numeric verification</strong> &mdash; Call Python's <code>torch.export.load</code> from MATLAB to compare outputs</li>
     </ul>
   </div>
-  <div class="slide-num">12</div>
+  <div class="slide-num">13</div>
 </div>
 
-<!-- Slide 13: Verify with Python -->
+<!-- Slide 14: Verify with Python -->
 <div class="slide slide-content">
   <div class="content-box">
     <h2>Bonus: Verify from MATLAB Using Python</h2>
@@ -483,10 +529,10 @@ max_err = max(abs(ml_out - py_out), [], <span class="str">'all'</span>);</div>
       MATLAB's Python interface lets you call <strong>any Python package</strong> for validation &mdash; no separate scripts needed.
     </div>
   </div>
-  <div class="slide-num">13</div>
+  <div class="slide-num">14</div>
 </div>
 
-<!-- Slide 14: Summary -->
+<!-- Slide 15: Summary -->
 <div class="slide slide-content">
   <div class="content-box">
     <h2>Key Takeaways</h2>
@@ -494,11 +540,12 @@ max_err = max(abs(ml_out - py_out), [], <span class="str">'all'</span>);</div>
       <li><strong>Direct codegen</strong> &mdash; no conversion to MATLAB network objects required (R2026a)</li>
       <li><strong>PyTorch <code>.pt2</code></strong> &mdash; use <code>torch.export</code> in Python, <code>loadPyTorchExportedProgram</code> in MATLAB</li>
       <li><strong>LiteRT <code>.tflite</code></strong> &mdash; use <code>loadLiteRTModel</code> in MATLAB for edge deployment</li>
-      <li><strong>Stateful models</strong> &mdash; make hidden state explicit for Simulink integration</li>
+      <li><strong>Simulink blocks</strong> &mdash; drag-and-drop inference with co-execution for validation</li>
+      <li><strong>Stateful models</strong> &mdash; explicit state I/O for streaming inference &amp; Simulink feedback loops</li>
       <li><strong>Python interop</strong> &mdash; call <code>py.torch</code> from MATLAB for numeric verification</li>
     </ul>
   </div>
-  <div class="slide-num">14</div>
+  <div class="slide-num">15</div>
 </div>
 
 <div class="nav-hint">Scroll to navigate slides</div>
