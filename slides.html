@@ -378,14 +378,52 @@ out = <span class="fn">invoke</span>(model, input);</div>
   <div class="slide-num">9</div>
 </div>
 
-<!-- Slide 10: Part 2 Header -->
-<div class="slide slide-section">
-  <h2>Part 2: MATLAB Live Demo</h2>
-  <div class="section-sub">Load, verify, and generate code</div>
+<!-- Slide 10: Simulink Blocks -->
+<div class="slide slide-content">
+  <div class="content-box">
+    <h2>Simulink Blocks for Direct Inference</h2>
+    <div class="two-col">
+      <div>
+        <div class="card" style="text-align:center;">
+          <div style="font-size:3em; margin-bottom:12px;">&#x1F9E0;</div>
+          <h3>PyTorch ExportedProgram Block</h3>
+          <p style="margin-top:10px;">Loads <code>.pt2</code> models directly in Simulink</p>
+          <ul class="bullets" style="margin-top:12px; text-align:left;">
+            <li>Multiple inputs &amp; outputs</li>
+            <li>Variable-sized dimensions</li>
+            <li>Generates C/C++ and CUDA code</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="text-align:center;">
+          <div style="font-size:3em; margin-bottom:12px;">&#x26A1;</div>
+          <h3>LiteRT Block</h3>
+          <p style="margin-top:10px;">Loads <code>.tflite</code> models directly in Simulink</p>
+          <ul class="bullets" style="margin-top:12px; text-align:left;">
+            <li>Input/output dimension permutation</li>
+            <li>State feedback loops with Delay blocks</li>
+            <li>Generates C/C++ and GPU code</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="takeaway">
+      Both blocks require the <strong>MATLAB Coder Support Package for PyTorch and LiteRT Models</strong>.<br>
+      Drag, configure, and generate &mdash; no MATLAB Function blocks needed.
+    </div>
+  </div>
   <div class="slide-num">10</div>
 </div>
 
-<!-- Slide 11: MATLAB Workflow -->
+<!-- Slide 11: Part 2 Header -->
+<div class="slide slide-section">
+  <h2>Part 2: MATLAB Live Demo</h2>
+  <div class="section-sub">Load, verify, and generate code</div>
+  <div class="slide-num">11</div>
+</div>
+
+<!-- Slide 12: MATLAB Workflow -->
 <div class="slide slide-content">
   <div class="content-box">
     <h2>MATLAB Demo Workflow</h2>
@@ -421,10 +459,10 @@ out = <span class="fn">invoke</span>(model, input);</div>
       <li><strong>Numeric verification</strong> &mdash; Call Python's <code>torch.export.load</code> from MATLAB to compare outputs</li>
     </ul>
   </div>
-  <div class="slide-num">11</div>
+  <div class="slide-num">12</div>
 </div>
 
-<!-- Slide 12: Verify with Python -->
+<!-- Slide 13: Verify with Python -->
 <div class="slide slide-content">
   <div class="content-box">
     <h2>Bonus: Verify from MATLAB Using Python</h2>
@@ -445,10 +483,10 @@ max_err = max(abs(ml_out - py_out), [], <span class="str">'all'</span>);</div>
       MATLAB's Python interface lets you call <strong>any Python package</strong> for validation &mdash; no separate scripts needed.
     </div>
   </div>
-  <div class="slide-num">12</div>
+  <div class="slide-num">13</div>
 </div>
 
-<!-- Slide 13: Summary -->
+<!-- Slide 14: Summary -->
 <div class="slide slide-content">
   <div class="content-box">
     <h2>Key Takeaways</h2>
@@ -460,7 +498,7 @@ max_err = max(abs(ml_out - py_out), [], <span class="str">'all'</span>);</div>
       <li><strong>Python interop</strong> &mdash; call <code>py.torch</code> from MATLAB for numeric verification</li>
     </ul>
   </div>
-  <div class="slide-num">13</div>
+  <div class="slide-num">14</div>
 </div>
 
 <div class="nav-hint">Scroll to navigate slides</div>
