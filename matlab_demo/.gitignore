@@ -6,6 +6,11 @@
 # Codegen output
 codegen/
 
+# Simulink build cache
+slprj/
+*.slxc
+*.slx.original
+
 # Model files (too large for git, downloaded from Colab)
 *.pt2
 *.tflite
