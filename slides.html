@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Direct Code Generation from PyTorch &amp; LiteRT Models</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #0a0a0a; color: #e0e0e0; }
+
+  .slide {
+    min-height: 100vh; display: flex; flex-direction: column;
+    justify-content: center; align-items: center; padding: 60px 80px;
+    position: relative; scroll-snap-align: start;
+  }
+  html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+
+  /* Title slide */
+  .slide-title { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); }
+  .slide-title h1 {
+    font-size: 3.2em; font-weight: 700; text-align: center;
+    background: linear-gradient(90deg, #4fc3f7, #81d4fa, #b3e5fc);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 20px; line-height: 1.2;
+  }
+  .slide-title .subtitle {
+    font-size: 1.4em; color: #90a4ae; text-align: center; margin-bottom: 40px;
+  }
+  .slide-title .meta { font-size: 1em; color: #607d8b; text-align: center; }
+
+  /* Section slides */
+  .slide-section { background: linear-gradient(135deg, #1b2838 0%, #1a237e 100%); }
+  .slide-section h2 {
+    font-size: 2.8em; font-weight: 700; text-align: center;
+    color: #81d4fa; margin-bottom: 10px;
+  }
+  .slide-section .section-sub { font-size: 1.3em; color: #90a4ae; text-align: center; }
+
+  /* Content slides */
+  .slide-content { background: #111827; }
+  .slide-content h2 { font-size: 2.2em; color: #81d4fa; margin-bottom: 30px; text-align: center; }
+  .slide-content h3 { font-size: 1.5em; color: #4fc3f7; margin-bottom: 15px; }
+
+  .content-box {
+    max-width: 1000px; width: 100%;
+  }
+
+  /* Flow diagram */
+  .flow { display: flex; align-items: center; justify-content: center; gap: 0; margin: 30px 0; flex-wrap: wrap; }
+  .flow-step {
+    background: #1e293b; border: 2px solid #334155; border-radius: 12px;
+    padding: 20px 28px; text-align: center; min-width: 160px;
+    transition: transform 0.2s;
+  }
+  .flow-step:hover { transform: translateY(-4px); border-color: #4fc3f7; }
+  .flow-step .step-num { font-size: 0.85em; color: #4fc3f7; font-weight: 600; margin-bottom: 6px; }
+  .flow-step .step-title { font-size: 1.1em; font-weight: 600; color: #e2e8f0; }
+  .flow-step .step-detail { font-size: 0.85em; color: #94a3b8; margin-top: 4px; }
+  .flow-arrow { font-size: 1.8em; color: #4fc3f7; padding: 0 8px; }
+
+  /* Cards */
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 20px; }
+  .card {
+    background: #1e293b; border: 1px solid #334155; border-radius: 12px;
+    padding: 28px; transition: border-color 0.2s;
+  }
+  .card:hover { border-color: #4fc3f7; }
+  .card .difficulty {
+    display: inline-block; padding: 3px 10px; border-radius: 20px;
+    font-size: 0.75em; font-weight: 600; margin-bottom: 10px;
+  }
+  .card .difficulty.simple { background: #064e3b; color: #6ee7b7; }
+  .card .difficulty.medium { background: #78350f; color: #fcd34d; }
+  .card .difficulty.advanced { background: #7f1d1d; color: #fca5a5; }
+  .card h3 { font-size: 1.2em; color: #e2e8f0; margin-bottom: 8px; }
+  .card p { font-size: 0.9em; color: #94a3b8; line-height: 1.5; }
+  .card code { background: #0f172a; padding: 2px 6px; border-radius: 4px; font-size: 0.85em; color: #7dd3fc; }
+
+  /* Bullet lists */
+  ul.bullets { list-style: none; padding: 0; }
+  ul.bullets li {
+    padding: 12px 0; padding-left: 28px; position: relative;
+    font-size: 1.15em; line-height: 1.5; color: #cbd5e1;
+  }
+  ul.bullets li::before {
+    content: ''; position: absolute; left: 0; top: 20px;
+    width: 10px; height: 10px; border-radius: 50%; background: #4fc3f7;
+  }
+
+  /* Code blocks */
+  .code-block {
+    background: #0f172a; border: 1px solid #1e293b; border-radius: 8px;
+    padding: 20px 24px; font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 0.95em; line-height: 1.6; margin: 15px 0; overflow-x: auto;
+    white-space: pre; display: block;
+  }
+  .code-label {
+    display: inline-block; padding: 2px 10px; border-radius: 4px 4px 0 0;
+    font-size: 0.8em; font-weight: 600; margin-bottom: -1px;
+  }
+  .code-label.python { background: #1e3a5f; color: #7dd3fc; }
+  .code-label.matlab { background: #3b1f0b; color: #fcd34d; }
+  .kw { color: #c792ea; } .fn { color: #82aaff; } .str { color: #c3e88d; }
+  .cm { color: #546e7a; } .num { color: #f78c6c; }
+
+  /* Two-column layout */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+
+  /* Slide number */
+  .slide-num {
+    position: absolute; bottom: 20px; right: 30px;
+    font-size: 0.85em; color: #475569;
+  }
+
+  /* Key takeaway */
+  .takeaway {
+    background: linear-gradient(135deg, #0f3460 0%, #1a237e 100%);
+    border: 1px solid #1e40af; border-radius: 12px;
+    padding: 24px 32px; margin-top: 20px; text-align: center;
+    font-size: 1.15em; color: #bfdbfe;
+  }
+  .takeaway strong { color: #93c5fd; }
+
+  /* Navigation hint */
+  .nav-hint {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    font-size: 0.8em; color: #475569; opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+
+<!-- Slide 1: Title -->
+<div class="slide slide-title">
+  <h1>Direct Code Generation from<br>PyTorch &amp; LiteRT Models</h1>
+  <div class="subtitle">From Python Export to MATLAB/Simulink Deployment</div>
+  <div class="meta">R2026a &nbsp;|&nbsp; Hands-On Tutorial</div>
+  <div class="slide-num">1</div>
+</div>
+
+<!-- Slide 2: What We'll Do -->
+<div class="slide slide-content">
+  <div class="content-box">
+    <h2>What We'll Do Today</h2>
+    <div class="flow">
+      <div class="flow-step">
+        <div class="step-num">STEP 1</div>
+        <div class="step-title">Export</div>
+        <div class="step-detail">Python / Colab</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="step-num">STEP 2</div>
+        <div class="step-title">Load</div>
+        <div class="step-detail">MATLAB</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="step-num">STEP 3</div>
+        <div class="step-title">Verify</div>
+        <div class="step-detail">MATLAB + Python</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="step-num">STEP 4</div>
+        <div class="step-title">Generate Code</div>
+        <div class="step-detail">C/C++ via Codegen</div>
+      </div>
+    </div>
+    <div class="takeaway">
+      <strong>No conversion to MATLAB network objects required.</strong><br>
+      Load the model directly and generate code.
+    </div>
+  </div>
+  <div class="slide-num">2</div>
+</div>
+
+<!-- Slide 3: Supported Formats -->
+<div class="slide slide-content">
+  <div class="content-box">
+    <h2>Two Formats, Two Functions</h2>
+    <div class="two-col">
+      <div>
+        <h3>PyTorch ExportedProgram</h3>
+        <div class="code-block"><span class="cm">% MATLAB</span>
+net = <span class="fn">loadPyTorchExportedProgram</span>(<span class="str">"model.pt2"</span>);
+out = <span class="fn">net</span>(input);</div>
+        <ul class="bullets">
+          <li>Full computation graph + weights</li>
+          <li>Exported via <code>torch.export</code></li>
+          <li>Supports stateful models</li>
+        </ul>
+      </div>
+      <div>
+        <h3>LiteRT (TensorFlow Lite)</h3>
+        <div class="code-block"><span class="cm">% MATLAB</span>
+model = <span class="fn">loadLiteRTModel</span>(<span class="str">"model.tflite"</span>);
+out = <span class="fn">invoke</span>(model, input);</div>
+        <ul class="bullets">
+          <li>Optimized for edge &amp; mobile</li>
+          <li>Unquantized models (float32, float64, logical)</li>
+          <li>Wide ecosystem (Android, MCUs)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">3</div>
+</div>
+
+<!-- Slide 4: Three Examples -->
+<div class="slide slide-content">
+  <div class="content-box">
+    <h2>Three Examples, Increasing Complexity</h2>
+    <div class="cards">
+      <div class="card">
+        <span class="difficulty simple">SIMPLE</span>
+        <h3>RepViT</h3>
+        <p>Image classification with a pretrained vision model.</p>
+        <p style="margin-top:10px;"><code>.pt2</code> &nbsp; Single input &rarr; single output</p>
+      </div>
+      <div class="card">
+        <span class="difficulty medium">MEDIUM</span>
+        <h3>YOLOv11</h3>
+        <p>Real-time object detection &amp; instance segmentation.</p>
+        <p style="margin-top:10px;"><code>.tflite</code> &nbsp; Single input &rarr; multiple outputs</p>
+      </div>
+      <div class="card">
+        <span class="difficulty advanced">ADVANCED</span>
+        <h3>Stateful LSTM</h3>
+        <p>Sensor-based activity recognition with hidden state.</p>
+        <p style="margin-top:10px;"><code>.pt2</code> &nbsp; Multiple inputs &rarr; multiple outputs</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">4</div>
+</div>
+
+<!-- Slide 5: Part 1 Header -->
+<div class="slide slide-section">
+  <h2>Part 1: Google Colab</h2>
+  <div class="section-sub">Export models from Python</div>
+  <div class="slide-num">5</div>
+</div>
+
+<!-- Slide 6: Colab Overview -->
+<div class="slide slide-content">
+  <div class="content-box">
+    <h2>What Happens in Colab</h2>
+    <ul class="bullets">
+      <li><strong>RepViT</strong> &mdash; Load pretrained model from <code>timm</code>, export with <code>torch.export</code>, save as <code>.pt2</code></li>
+      <li><strong>YOLOv11</strong> &mdash; Download pre-exported <code>.tflite</code> from GitHub (conversion requires TensorFlow)</li>
+      <li><strong>Stateful LSTM</strong> &mdash; Define model with explicit state I/O, train on synthetic data, export to <code>.pt2</code></li>
+      <li><strong>Download all three files</strong> to your machine for use in MATLAB</li>
+    </ul>
+    <div class="takeaway">
+      The key API: &nbsp; <strong>torch.export.export(model, inputs)</strong> &nbsp; + &nbsp; <strong>torch.export.save(ep, "file.pt2")</strong>
+    </div>
+  </div>
+  <div class="slide-num">6</div>
+</div>
+
+<!-- Slide 7: The Export Pattern -->
+<div class="slide slide-content">
+  <div class="content-box">
+    <h2>The Export Pattern (3 Lines)</h2>
+    <span class="code-label python">Python</span>
+    <div class="code-block"><span class="cm"># 1. Load or define your model</span>
+model = timm.create_model(<span class="str">'repvit_m1_0'</span>, pretrained=<span class="kw">True</span>)
+
+<span class="cm"># 2. Export the computation graph</span>
+ep = torch.export.export(model, (sample_input,))
+
+<span class="cm"># 3. Save to .pt2</span>
+torch.export.save(ep, <span class="str">'repvit.pt2'</span>)</div>
+    <span class="code-label matlab">MATLAB</span>
+    <div class="code-block"><span class="cm">% Load and use — that's it</span>
+net = loadPyTorchExportedProgram(<span class="str">"repvit.pt2"</span>);
+scores = net(input);</div>
+  </div>
+  <div class="slide-num">7</div>
+</div>
+
+<!-- Slide 8: LiteRT Export Pattern -->
+<div class="slide slide-content">
+  <div class="content-box">
+    <h2>Exporting to LiteRT (.tflite)</h2>
+    <div class="two-col">
+      <div>
+        <h3>Option A: <code>ai_edge_torch</code></h3>
+        <p style="color:#94a3b8; margin-bottom:10px;">Convert any PyTorch model directly to TFLite</p>
+        <span class="code-label python">Python</span>
+        <div class="code-block"><span class="kw">import</span> ai_edge_torch
+
+model = ...  <span class="cm"># any PyTorch nn.Module</span>
+sample = torch.randn(<span class="num">1</span>, <span class="num">3</span>, <span class="num">224</span>, <span class="num">224</span>)
+
+edge_model = ai_edge_torch.<span class="fn">convert</span>(
+    model, (sample,)
+)
+edge_model.<span class="fn">export</span>(<span class="str">"model.tflite"</span>)</div>
+      </div>
+      <div>
+        <h3>Option B: Framework Export</h3>
+        <p style="color:#94a3b8; margin-bottom:10px;">Some frameworks have built-in TFLite export</p>
+        <span class="code-label python">Python (Ultralytics)</span>
+        <div class="code-block"><span class="kw">from</span> ultralytics <span class="kw">import</span> YOLO
+
+model = YOLO(<span class="str">'yolo11s-seg.pt'</span>)
+model.<span class="fn">export</span>(format=<span class="str">'tflite'</span>)</div>
+        <p style="color:#94a3b8; margin-top:15px; font-size:0.9em;">Internally: PyTorch &rarr; ONNX &rarr; TF &rarr; TFLite</p>
+      </div>
+    </div>
+    <span class="code-label matlab">MATLAB</span>
+    <div class="code-block"><span class="cm">% Same MATLAB API regardless of how the model was exported</span>
+model = <span class="fn">loadLiteRTModel</span>(<span class="str">"model.tflite"</span>);
+out = <span class="fn">invoke</span>(model, input);</div>
+  </div>
+  <div class="slide-num">8</div>
+</div>
+
+<!-- Slide 9: Stateful Pattern  -->
+<div class="slide slide-content">
+  <div class="content-box">
+    <h2>Stateful Models: Explicit State I/O</h2>
+    <div class="two-col">
+      <div>
+        <span class="code-label python">Python — Model Definition</span>
+        <div class="code-block"><span class="kw">def</span> <span class="fn">forward</span>(self, x, h_0, c_0):
+    out, (h_n, c_n) = self.lstm(x, (h_0, c_0))
+    pred = self.fc(out)
+    <span class="kw">return</span> pred, h_n, c_n</div>
+      </div>
+      <div>
+        <span class="code-label matlab">MATLAB — Streaming Inference</span>
+        <div class="code-block">[pred, h_n, c_n] = net(x, h_0, c_0);
+
+<span class="cm">% Next timestep: feed state back</span>
+[pred, h_n, c_n] = net(x_next, h_n, c_n);</div>
+      </div>
+    </div>
+    <div class="takeaway">
+      The caller manages the hidden state &mdash; essential for <strong>Simulink</strong> and <strong>streaming inference</strong>.
+    </div>
+  </div>
+  <div class="slide-num">9</div>
+</div>
+
+<!-- Slide 10: Part 2 Header -->
+<div class="slide slide-section">
+  <h2>Part 2: MATLAB Live Demo</h2>
+  <div class="section-sub">Load, verify, and generate code</div>
+  <div class="slide-num">10</div>
+</div>
+
+<!-- Slide 11: MATLAB Workflow -->
+<div class="slide slide-content">
+  <div class="content-box">
+    <h2>MATLAB Demo Workflow</h2>
+    <div class="flow">
+      <div class="flow-step">
+        <div class="step-num">1</div>
+        <div class="step-title">Load Model</div>
+        <div class="step-detail">loadPyTorchExportedProgram<br>loadLiteRTModel</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="step-num">2</div>
+        <div class="step-title">Run Inference</div>
+        <div class="step-detail">net(input)</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="step-num">3</div>
+        <div class="step-title">Verify vs Python</div>
+        <div class="step-detail">py.torch interface</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="step-num">4</div>
+        <div class="step-title">Generate MEX</div>
+        <div class="step-detail">codegen</div>
+      </div>
+    </div>
+    <ul class="bullets">
+      <li><strong>RepViT</strong> &mdash; Classify an image, show top-5 predictions, generate MEX</li>
+      <li><strong>YOLOv11</strong> &mdash; Detect objects, draw bounding boxes &amp; masks</li>
+      <li><strong>Stateful LSTM</strong> &mdash; Activity recognition with explicit state passing</li>
+      <li><strong>Numeric verification</strong> &mdash; Call Python's <code>torch.export.load</code> from MATLAB to compare outputs</li>
+    </ul>
+  </div>
+  <div class="slide-num">11</div>
+</div>
+
+<!-- Slide 12: Verify with Python -->
+<div class="slide slide-content">
+  <div class="content-box">
+    <h2>Bonus: Verify from MATLAB Using Python</h2>
+    <span class="code-label matlab">MATLAB</span>
+    <div class="code-block"><span class="cm">% Load the same .pt2 in Python — directly from MATLAB</span>
+torch = py.importlib.import_module(<span class="str">"torch"</span>);
+ep = torch.export.load(<span class="str">"repvit.pt2"</span>);
+model = ep.module();
+
+<span class="cm">% Run Python inference</span>
+np = py.importlib.import_module(<span class="str">"numpy"</span>);
+t_in = torch.from_numpy(np.array(input, dtype=<span class="str">"float32"</span>));
+py_out = single(model(t_in).detach().numpy());
+
+<span class="cm">% Compare</span>
+max_err = max(abs(ml_out - py_out), [], <span class="str">'all'</span>);</div>
+    <div class="takeaway">
+      MATLAB's Python interface lets you call <strong>any Python package</strong> for validation &mdash; no separate scripts needed.
+    </div>
+  </div>
+  <div class="slide-num">12</div>
+</div>
+
+<!-- Slide 13: Summary -->
+<div class="slide slide-content">
+  <div class="content-box">
+    <h2>Key Takeaways</h2>
+    <ul class="bullets">
+      <li><strong>Direct codegen</strong> &mdash; no conversion to MATLAB network objects required (R2026a)</li>
+      <li><strong>PyTorch <code>.pt2</code></strong> &mdash; use <code>torch.export</code> in Python, <code>loadPyTorchExportedProgram</code> in MATLAB</li>
+      <li><strong>LiteRT <code>.tflite</code></strong> &mdash; use <code>loadLiteRTModel</code> in MATLAB for edge deployment</li>
+      <li><strong>Stateful models</strong> &mdash; make hidden state explicit for Simulink integration</li>
+      <li><strong>Python interop</strong> &mdash; call <code>py.torch</code> from MATLAB for numeric verification</li>
+    </ul>
+  </div>
+  <div class="slide-num">13</div>
+</div>
+
+<div class="nav-hint">Scroll to navigate slides</div>
+
+</body>
+</html>
