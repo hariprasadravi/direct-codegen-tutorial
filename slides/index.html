@@ -291,30 +291,48 @@ scores = net(input);</div>
 <div class="slide slide-content">
   <div class="content-box">
     <h2>Exporting to LiteRT (.tflite)</h2>
-    <div class="two-col">
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px;">
       <div>
-        <h3>Option A: <code>ai_edge_torch</code></h3>
-        <p style="color:#94a3b8; margin-bottom:10px;">Convert any PyTorch model directly to TFLite</p>
+        <h3>From PyTorch</h3>
+        <p style="color:#94a3b8; margin-bottom:10px;">Via <code>litert_torch</code></p>
         <span class="code-label python">Python</span>
-        <div class="code-block"><span class="kw">import</span> ai_edge_torch
+        <div class="code-block"><span class="kw">import</span> litert_torch
 
-model = ...  <span class="cm"># any PyTorch nn.Module</span>
+model = ...  <span class="cm"># nn.Module</span>
 sample = torch.randn(<span class="num">1</span>, <span class="num">3</span>, <span class="num">224</span>, <span class="num">224</span>)
 
-edge_model = ai_edge_torch.<span class="fn">convert</span>(
+edge_model = litert_torch.<span class="fn">convert</span>(
     model, (sample,)
 )
 edge_model.<span class="fn">export</span>(<span class="str">"model.tflite"</span>)</div>
       </div>
       <div>
-        <h3>Option B: Framework Export</h3>
-        <p style="color:#94a3b8; margin-bottom:10px;">Some frameworks have built-in TFLite export</p>
-        <span class="code-label python">Python (Ultralytics)</span>
+        <h3>From Keras / TF</h3>
+        <p style="color:#94a3b8; margin-bottom:10px;">Via <code>tf.lite.TFLiteConverter</code></p>
+        <span class="code-label python">Python</span>
+        <div class="code-block"><span class="kw">import</span> tensorflow <span class="kw">as</span> tf
+
+model = tf.keras.models.load_model(
+    <span class="str">"my_model.keras"</span>
+)
+converter = tf.lite.<span class="fn">TFLiteConverter</span> \
+    .from_keras_model(model)
+tflite_model = converter.<span class="fn">convert</span>()
+
+<span class="kw">with</span> open(<span class="str">"model.tflite"</span>, <span class="str">"wb"</span>) <span class="kw">as</span> f:
+    f.write(tflite_model)</div>
+      </div>
+      <div>
+        <h3>Framework Shortcut</h3>
+        <p style="color:#94a3b8; margin-bottom:10px;">E.g. Ultralytics YOLO</p>
+        <span class="code-label python">Python</span>
         <div class="code-block"><span class="kw">from</span> ultralytics <span class="kw">import</span> YOLO
 
 model = YOLO(<span class="str">'yolo11s-seg.pt'</span>)
-model.<span class="fn">export</span>(format=<span class="str">'tflite'</span>)</div>
-        <p style="color:#94a3b8; margin-top:15px; font-size:0.9em;">Internally: PyTorch &rarr; ONNX &rarr; TF &rarr; TFLite</p>
+model.<span class="fn">export</span>(format=<span class="str">'tflite'</span>)
+
+<span class="cm"># Internally:</span>
+<span class="cm"># PT → ONNX → TF → TFLite</span></div>
       </div>
     </div>
     <span class="code-label matlab">MATLAB</span>
