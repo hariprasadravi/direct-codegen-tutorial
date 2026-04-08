@@ -13,7 +13,7 @@ end
 
 outs = cell(1, 2);
 [outs{:}] = invoke(yoloSegModel, permute(img, [4 1 2 3]));
-outputs = permute(outs{1}, [3 2 1]);
+outputs = permute(outs{1}, [3 2 1]); % [C W H] -> [H W C]
 masks = squeeze(outs{2});
 
 bboxIndices = 1:4;

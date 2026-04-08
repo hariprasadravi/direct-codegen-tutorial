@@ -7,11 +7,8 @@ fprintf('\n=== Direct Codegen Tutorial — Project Setup ===\n\n');
 fprintf('[1/4] Checking MATLAB Coder Support Package for PyTorch and LiteRT Models...\n');
 try
     info = SupportPackageRegistrationInfo('MC_PYTORCH_LITERT');
-    fprintf('       Support package found: %s\n', info.Name);
     info.register;
 catch
-    warning('projectStartup:noSupportPkg', ...
-        'Support package not found. Install "MATLAB Coder Support Package for PyTorch and LiteRT Models" from Add-On Explorer.');
 end
 
 %% 2. Configure Python Environment
